@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Windows Güvenlik Merkezi</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <title>Beni Yakala</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,221 +22,125 @@
       background: linear-gradient(180deg, #1e2335 0%, #151a2b 100%);
       border: 1px solid #2a3142;
       border-radius: 12px;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-      max-width: 480px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+      max-width: 520px;
       width: 90%;
-      padding: 28px 32px;
+      padding: 32px;
       position: relative;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 24px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid #2a3142;
-    }
-    .icon {
-      width: 52px;
-      height: 52px;
-      background: linear-gradient(135deg, #ff4444, #cc0000);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.9; }
+      text-align: center;
     }
     h1 {
-      font-size: 1.35rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #e0e0e0;
+      margin-bottom: 8px;
+    }
+    .sub {
+      font-size: 0.9rem;
+      color: #8892a6;
+      margin-bottom: 24px;
+    }
+    #playArea {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+      border: 1px dashed #2a3142;
+    }
+    .btn-catch {
+      position: absolute;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      background: linear-gradient(180deg, #00c853, #009624);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0, 200, 83, 0.45);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-catch:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 24px rgba(0, 200, 83, 0.55);
+    }
+    .btn-catch.caught {
+      cursor: default;
+      position: static;
+      margin-top: 12px;
+    }
+    #result {
+      display: none;
+      margin-top: 20px;
+      padding: 18px 24px;
+      background: rgba(255, 68, 68, 0.15);
+      border: 1px solid rgba(255, 68, 68, 0.4);
+      border-radius: 10px;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #ff6b6b;
     }
-    .sub {
-      font-size: 0.85rem;
-      color: #8892a6;
-      margin-top: 2px;
-    }
-    .alert-box {
-      background: rgba(255, 68, 68, 0.12);
-      border: 1px solid rgba(255, 68, 68, 0.35);
-      border-radius: 8px;
-      padding: 16px 18px;
-      margin-bottom: 22px;
-    }
-    .alert-box p {
-      font-size: 0.95rem;
-      line-height: 1.55;
-      color: #ffb3b3;
-    }
-    .virus-count {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #ff4444;
-      text-align: center;
-      margin: 18px 0;
-      font-variant-numeric: tabular-nums;
-    }
-    .progress-wrap {
-      height: 8px;
-      background: #1a1f2e;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 24px;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #ff4444, #ff8888);
-      border-radius: 4px;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .progress-text {
-      font-size: 0.8rem;
-      color: #8892a6;
-      margin-bottom: 8px;
-    }
-    .btn-wrap {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .btn {
-      padding: 14px 28px;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      font-family: inherit;
-      position: absolute;
-    }
-    .btn-primary {
-      background: linear-gradient(180deg, #00c853, #009624);
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(0, 200, 83, 0.4);
-    }
-    .btn-primary:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5); }
-    .btn-secondary {
-      background: #2a3142;
-      color: #b0b8c8;
-      border: 1px solid #3a4154;
-    }
-    .btn-secondary:hover { background: #343b4e; }
-    #triggerArea {
-      position: relative;
-      height: 120px;
-      margin-top: 16px;
-    }
-    .hint {
-      text-align: center;
-      font-size: 0.75rem;
-      color: #5a6278;
-      margin-top: 20px;
-    }
-    .fake-list {
-      font-size: 0.85rem;
-      color: #8892a6;
-      margin-top: 12px;
-      padding-left: 20px;
-    }
-    .fake-list li { margin: 4px 0; }
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="header">
-      <div class="icon">⚠️</div>
-      <div>
-        <h1>Kritik Güvenlik Uyarısı</h1>
-        <p class="sub">Windows Güvenlik Merkezi • Virüs tespit edildi</p>
-      </div>
+    <h1>Beni Yakala</h1>
+    <p class="sub">Butona tıkla — kaçıyor ama yakalanabilir 🎯</p>
+    <div id="playArea">
+      <button type="button" class="btn-catch" id="catchBtn">Beni Yakala</button>
     </div>
-    <div class="alert-box">
-      <p><strong>Bilgisayarınızda ciddi tehditler tespit edildi.</strong> Hemen temizleme işlemini başlatın. Aksi takdirde kişisel verileriniz (şifreler, banka bilgileri, fotoğraflar) risk altında olabilir.</p>
-    </div>
-    <p class="progress-text">Tespit edilen tehdit sayısı:</p>
-    <div class="virus-count" id="virusCount">0</div>
-    <div class="progress-wrap">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <p class="progress-text">"Virüsleri Temizle" butonuna tıklayın (buton aşağıda)</p>
-    <div id="triggerArea">
-      <button type="button" class="btn btn-primary" id="runBtn">Virüsleri Temizle</button>
-    </div>
-    <ul class="fake-list">
-      <li>Trojan.Win32.Generic</li>
-      <li>Adware.WebSearch</li>
-      <li>PUP.Optional.FakeAV</li>
-    </ul>
-    <p class="hint">Buton sayfada bir yerde... Bul ve tıkla! 🎯</p>
-    <div id="trollMsg" style="display:none; margin-top:20px; padding:16px; background:rgba(0,200,83,0.15); border:1px solid rgba(0,200,83,0.4); border-radius:8px; text-align:center; color:#69f0ae; font-weight:600;">
-      🎉 TROLL! Arkadaşın seni kandırdı — bilgisayarında virüs yok. İyi eğlenceler! 😂
-    </div>
+    <div id="result"></div>
   </div>
 
   <script>
-    const triggerArea = document.getElementById('triggerArea');
-    const runBtn = document.getElementById('runBtn');
-    const virusCount = document.getElementById('virusCount');
-    const progressBar = document.getElementById('progressBar');
+    const playArea = document.getElementById('playArea');
+    const catchBtn = document.getElementById('catchBtn');
+    const resultEl = document.getElementById('result');
 
-    let count = 0;
-    const maxCount = 847;
-    const countInterval = setInterval(() => {
-      count += 7 + Math.floor(Math.random() * 20);
-      if (count >= maxCount) {
-        count = maxCount;
-        clearInterval(countInterval);
-      }
-      virusCount.textContent = count;
-      progressBar.style.width = (count / maxCount) * 100 + '%';
-    }, 80);
+    let caught = false;
+    let runDelay = 180;
 
     function randomPosition() {
-      const rect = triggerArea.getBoundingClientRect();
-      const padding = 60;
-      const x = Math.random() * (rect.width - padding * 2) + padding;
-      const y = Math.random() * (rect.height - padding * 2) + padding;
+      const rect = playArea.getBoundingClientRect();
+      const btnRect = catchBtn.getBoundingClientRect();
+      const padding = 16;
+      const maxX = rect.width - btnRect.width - padding * 2;
+      const maxY = rect.height - btnRect.height - padding * 2;
+      const x = padding + Math.random() * Math.max(0, maxX);
+      const y = padding + Math.random() * Math.max(0, maxY);
       return { x, y };
     }
 
-    function placeButton() {
+    function moveButton() {
+      if (caught) return;
       const pos = randomPosition();
-      runBtn.style.left = pos.x + 'px';
-      runBtn.style.top = pos.y + 'px';
+      catchBtn.style.left = pos.x + 'px';
+      catchBtn.style.top = pos.y + 'px';
     }
 
-    let trolled = false;
-    runBtn.addEventListener('mouseenter', () => {
-      if (!trolled) placeButton();
+    let moveTimer = null;
+    catchBtn.addEventListener('mouseenter', () => {
+      if (caught) return;
+      moveTimer = setTimeout(moveButton, runDelay);
     });
-    runBtn.addEventListener('click', (e) => {
+    catchBtn.addEventListener('mouseleave', () => {
+      if (moveTimer) clearTimeout(moveTimer);
+    });
+
+    catchBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (trolled) return;
-      trolled = true;
-      document.getElementById('trollMsg').style.display = 'block';
-      runBtn.textContent = 'Yakaladın! 😂';
-      runBtn.style.position = 'static';
-      runBtn.style.marginTop = '12px';
+      if (caught) return;
+      caught = true;
+      if (moveTimer) clearTimeout(moveTimer);
+      catchBtn.classList.add('caught');
+      catchBtn.textContent = 'Yakaladın!';
+      resultEl.textContent = "Ahmet'in amınakoyayım";
+      resultEl.style.display = 'block';
     });
 
-    triggerArea.addEventListener('click', (e) => {
-      if (e.target !== runBtn) {
-        runBtn.textContent = 'Nerede nerede? Buraya tıkla!';
-        setTimeout(() => { runBtn.textContent = 'Virüsleri Temizle'; }, 800);
-        placeButton();
-      }
-    });
-
-    placeButton();
+    moveButton();
   </script>
 </body>
 </html>
