@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Beni Yakala</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <title>Yılanı Yakala</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,134 +13,456 @@
       min-height: 100vh;
       background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1129 100%);
       color: #e0e0e0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       overflow: hidden;
     }
-    .card {
+
+    #nameOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 39, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    #nameOverlay.hidden { display: none; }
+    .leaderboard {
       background: linear-gradient(180deg, #1e2335 0%, #151a2b 100%);
       border: 1px solid #2a3142;
       border-radius: 12px;
-      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
-      max-width: 520px;
-      width: 90%;
-      padding: 32px;
-      position: relative;
+      padding: 16px 24px;
+      margin-bottom: 20px;
+      min-width: 280px;
+    }
+    .leaderboard h2 {
+      font-size: 1.2rem;
+      color: #e0e0e0;
+      margin-bottom: 12px;
       text-align: center;
     }
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #e0e0e0;
-      margin-bottom: 8px;
-    }
-    .sub {
-      font-size: 0.9rem;
-      color: #8892a6;
-      margin-bottom: 24px;
-    }
-    #playArea {
-      position: relative;
-      width: 100%;
-      height: 280px;
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      margin-bottom: 4px;
       background: rgba(0,0,0,0.2);
-      border-radius: 10px;
-      border: 1px dashed #2a3142;
+      border-radius: 8px;
+      font-size: 1rem;
     }
-    .btn-catch {
-      position: absolute;
-      padding: 16px 32px;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
+    .leaderboard-row:last-child { margin-bottom: 0; }
+    .leaderboard-row .rank { font-weight: 700; color: #00c853; margin-right: 10px; }
+    .leaderboard-row .name { flex: 1; text-align: left; }
+    .leaderboard-row .score { font-weight: 700; color: #7cfc00; }
+    .last-score {
+      font-size: 0.95rem;
+      color: #7cfc00;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .name-card {
+      background: linear-gradient(180deg, #1e2335 0%, #151a2b 100%);
+      border: 1px solid #2a3142;
+      border-radius: 12px;
+      padding: 36px 40px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+    }
+    .name-card h1 { font-size: 1.5rem; margin-bottom: 8px; color: #e0e0e0; }
+    .name-card p { font-size: 0.9rem; color: #8892a6; margin-bottom: 24px; }
+    .name-card input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1rem;
+      border: 1px solid #2a3142;
+      border-radius: 8px;
+      background: #151a2b;
+      color: #e0e0e0;
+      margin-bottom: 20px;
       font-family: inherit;
+    }
+    .name-card input:focus { outline: none; border-color: #00c853; }
+    .name-card button {
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
       background: linear-gradient(180deg, #00c853, #009624);
       color: #fff;
-      box-shadow: 0 4px 20px rgba(0, 200, 83, 0.45);
-      transition: transform 0.1s, box-shadow 0.1s;
+      cursor: pointer;
+      font-family: inherit;
     }
-    .btn-catch:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 24px rgba(0, 200, 83, 0.55);
+    .name-card button:hover { opacity: 0.95; }
+
+    #gameScreen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
     }
-    .btn-catch.caught {
-      cursor: default;
-      position: static;
-      margin-top: 12px;
+    #gameScreen.hidden { display: none; }
+    #gameHeader {
+      flex-shrink: 0;
+      padding: 14px 20px;
+      text-align: center;
+      background: rgba(15, 20, 40, 0.7);
+      border-bottom: 1px solid #2a3142;
     }
-    #result {
-      display: none;
-      margin-top: 20px;
-      padding: 18px 24px;
-      background: rgba(255, 68, 68, 0.15);
-      border: 1px solid rgba(255, 68, 68, 0.4);
-      border-radius: 10px;
-      font-size: 1.25rem;
+    #gameHeader h1 { font-size: 1.25rem; color: #e0e0e0; }
+    #gameHeader .sub { font-size: 0.8rem; color: #8892a6; margin-top: 4px; }
+    #gameHeader .current-score { font-size: 1.1rem; color: #7cfc00; margin-top: 6px; font-weight: 600; }
+
+    #snakeLayer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 56px;
+      bottom: 0;
+      pointer-events: none;
+    }
+    #snakeLayer .snake-clickable { pointer-events: auto; }
+
+    #snakeHead {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #7cfc00, #2e8b20 45%, #1a5f1a);
+      box-shadow: 0 0 25px rgba(124, 252, 0, 0.4), inset 0 -3px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 2;
+      border: 2px solid rgba(255,255,255,0.25);
+    }
+    #snakeHead::before, #snakeHead::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #111;
+      top: 12px;
+      box-shadow: 0 0 2px #000;
+    }
+    #snakeHead::before { left: 10px; }
+    #snakeHead::after { right: 10px; }
+
+    .snake-body {
+      position: fixed;
+      border-radius: 50%;
+      z-index: 1;
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.2);
+    }
+
+    #bounceLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 50;
+      overflow: hidden;
+    }
+    #bounceLayer.hidden { display: none; }
+    .bounce-text {
+      position: absolute;
+      font-size: 2.255rem;
       font-weight: 700;
       color: #ff6b6b;
+      text-shadow: 0 0 12px rgba(255, 107, 107, 0.6);
+      white-space: nowrap;
     }
+    .score-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 55;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 14, 39, 0.85);
+      pointer-events: none;
+    }
+    .score-overlay.show {
+      display: flex;
+      pointer-events: auto;
+    }
+    .score-overlay .score-value { font-size: 2.5rem; font-weight: 700; color: #7cfc00; margin-bottom: 20px; }
+    .score-overlay .play-again-btn {
+      padding: 16px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #00c853, #009624);
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .score-overlay .play-again-btn:hover { opacity: 0.95; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Beni Yakala</h1>
-    <p class="sub">Butona tıkla — kaçıyor ama yakalanabilir 🎯</p>
-    <div id="playArea">
-      <button type="button" class="btn-catch" id="catchBtn">Beni Yakala</button>
+  <div id="nameOverlay">
+    <div class="leaderboard">
+      <h2>🏆 Liderlik Tablosu</h2>
+      <div id="leaderboardList"></div>
     </div>
-    <div id="result"></div>
+    <p class="last-score" id="lastScoreEl" style="display:none;"></p>
+    <div class="name-card">
+      <h1>Yılanı Yakala</h1>
+      <p>Oyuna başlamak için ismini yaz</p>
+      <input type="text" id="nameInput" placeholder="İsmin" maxlength="30" autocomplete="off">
+      <button type="button" id="startBtn">Başla</button>
+    </div>
+  </div>
+
+  <div id="gameScreen">
+    <div id="gameHeader">
+      <h1>Yılanın kafasına tıkla!</h1>
+      <p class="sub">Fare yaklaşınca yön değiştirir — tüm sayfada dolaşıyor 🐍</p>
+      <p class="current-score" id="currentScoreEl" style="display:none;"></p>
+    </div>
+    <div id="snakeLayer">
+      <div id="snakeHead" class="snake-clickable"></div>
+    </div>
+  </div>
+
+  <div id="bounceLayer" class="hidden"></div>
+  <div class="score-overlay" id="scoreOverlay">
+    <span class="score-value" id="scoreOverlayValue">Skorun: 0</span>
+    <button type="button" class="play-again-btn" id="playAgainBtn">Tekrar Oyna</button>
   </div>
 
   <script>
-    const playArea = document.getElementById('playArea');
-    const catchBtn = document.getElementById('catchBtn');
-    const resultEl = document.getElementById('result');
+    const nameOverlay = document.getElementById('nameOverlay');
+    const nameInput = document.getElementById('nameInput');
+    const startBtn = document.getElementById('startBtn');
+    const gameScreen = document.getElementById('gameScreen');
+    const snakeLayer = document.getElementById('snakeLayer');
+    const snakeHead = document.getElementById('snakeHead');
+    const bounceLayer = document.getElementById('bounceLayer');
+    const currentScoreEl = document.getElementById('currentScoreEl');
+    const scoreOverlay = document.getElementById('scoreOverlay');
+    const scoreOverlayValue = document.getElementById('scoreOverlayValue');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const lastScoreEl = document.getElementById('lastScoreEl');
+    const leaderboardList = document.getElementById('leaderboardList');
 
-    let caught = false;
-    let runDelay = 180;
+    let playerName = '';
+    let gameStarted = false;
+    let won = false;
+    let gameStartTime = 0;
+    let lastScore = null;
 
-    function randomPosition() {
-      const rect = playArea.getBoundingClientRect();
-      const btnRect = catchBtn.getBoundingClientRect();
-      const padding = 16;
-      const maxX = rect.width - btnRect.width - padding * 2;
-      const maxY = rect.height - btnRect.height - padding * 2;
-      const x = padding + Math.random() * Math.max(0, maxX);
-      const y = padding + Math.random() * Math.max(0, maxY);
-      return { x, y };
+    function buildLeaderboard() {
+      const list = [
+        { name: 'Onur', score: 156 },
+        { name: 'Ilıcan', score: 149 },
+        { name: 'Kerem', score: 127 }
+      ];
+      leaderboardList.innerHTML = list.map((entry, i) =>
+        '<div class="leaderboard-row">' +
+        '<span class="rank">' + (i + 1) + '.</span>' +
+        '<span class="name">' + entry.name + '</span>' +
+        '<span class="score">' + entry.score + ' puan</span>' +
+        '</div>'
+      ).join('');
+    }
+    buildLeaderboard();
+
+    function showLastScore() {
+      if (lastScore !== null) {
+        lastScoreEl.style.display = 'block';
+        lastScoreEl.textContent = 'Son skorun: ' + lastScore + ' puan';
+      } else {
+        lastScoreEl.style.display = 'none';
+      }
     }
 
-    function moveButton() {
-      if (caught) return;
-      const pos = randomPosition();
-      catchBtn.style.left = pos.x + 'px';
-      catchBtn.style.top = pos.y + 'px';
+    startBtn.addEventListener('click', () => {
+      const name = (nameInput.value || 'Oyuncu').trim();
+      playerName = name || 'Oyuncu';
+      nameOverlay.classList.add('hidden');
+      gameScreen.classList.remove('hidden');
+      gameStarted = true;
+      won = false;
+      gameStartTime = Date.now();
+      currentScoreEl.style.display = 'none';
+      initSnake();
+    });
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') startBtn.click();
+    });
+
+    const HEAD_R = 22;
+    const BODY_SEGMENTS = 38;
+    const SEGMENT_BASE_R = 12;
+    const SPEED = 2.8;
+    const DODGE_DIST = 100;
+    const TURN_STRENGTH = 0.2;
+    const HEADER_H = 56;
+
+    let headX = 0, headY = 0;
+    let angle = 0;
+    let trail = [];
+    let mouseX = -999, mouseY = -999;
+
+    function getViewport() {
+      return { w: window.innerWidth, h: window.innerHeight - HEADER_H };
     }
 
-    let moveTimer = null;
-    catchBtn.addEventListener('mouseenter', () => {
-      if (caught) return;
-      moveTimer = setTimeout(moveButton, runDelay);
-    });
-    catchBtn.addEventListener('mouseleave', () => {
-      if (moveTimer) clearTimeout(moveTimer);
-    });
+    function initSnake() {
+      const vp = getViewport();
+      headX = Math.max(0, vp.w / 2 - HEAD_R);
+      headY = Math.max(0, vp.h / 2 - HEAD_R);
+      angle = Math.random() * Math.PI * 2;
+      trail = [];
+      for (let i = 0; i < BODY_SEGMENTS; i++) trail.push({ x: headX + HEAD_R, y: headY + HEAD_R });
+      snakeLayer.querySelectorAll('.snake-body').forEach(el => el.remove());
+      requestAnimationFrame(updateSnake);
+    }
 
-    catchBtn.addEventListener('click', (e) => {
+    function updateSnake() {
+      if (!gameStarted || won) return;
+      const vp = getViewport();
+      const w = vp.w, h = vp.h;
+      const cx = headX + HEAD_R, cy = headY + HEAD_R;
+      const dx = mouseX - cx, dy = mouseY - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < DODGE_DIST && dist > 5) {
+        const away = Math.atan2(-dy, -dx);
+        let d = away - angle;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        angle += d * TURN_STRENGTH;
+      }
+      headX += Math.cos(angle) * SPEED;
+      headY += Math.sin(angle) * SPEED;
+      if (headX < 0) { headX = 0; angle = Math.PI - angle; }
+      if (headY < 0) { headY = 0; angle = -angle; }
+      if (headX > w - HEAD_R * 2) { headX = w - HEAD_R * 2; angle = Math.PI - angle; }
+      if (headY > h - HEAD_R * 2) { headY = h - HEAD_R * 2; angle = -angle; }
+      trail.push({ x: headX + HEAD_R, y: headY + HEAD_R });
+      if (trail.length > BODY_SEGMENTS) trail.shift();
+      snakeHead.style.left = headX + 'px';
+      snakeHead.style.top = (headY + HEADER_H) + 'px';
+      let bodies = snakeLayer.querySelectorAll('.snake-body');
+      for (let i = 0; i < trail.length - 1; i++) {
+        const p = trail[i];
+        const t = i / (trail.length - 1);
+        const r = SEGMENT_BASE_R * (1 - t * 0.65);
+        let el = bodies[i];
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'snake-body';
+          snakeLayer.appendChild(el);
+        }
+        el.style.width = r * 2 + 'px';
+        el.style.height = r * 2 + 'px';
+        el.style.left = (p.x - r) + 'px';
+        el.style.top = (p.y - r + HEADER_H) + 'px';
+        el.style.background = `radial-gradient(circle at 30% 30%, #5cb85c, #2e6b2e ${60 - t * 30}%, #1a4d1a)`;
+      }
+      if (bodies.length > trail.length - 1) {
+        for (let i = trail.length - 1; i < bodies.length; i++) bodies[i].remove();
+      }
+      requestAnimationFrame(updateSnake);
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (!gameStarted || won) return;
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    document.addEventListener('mouseleave', () => { mouseX = -999; mouseY = -999; });
+
+    function computeScore() {
+      const elapsed = (Date.now() - gameStartTime) / 1000;
+      const base = 100;
+      const bonus = Math.max(0, 45 - Math.floor(elapsed)) * 4;
+      return base + bonus;
+    }
+
+    snakeHead.addEventListener('click', (e) => {
       e.preventDefault();
-      if (caught) return;
-      caught = true;
-      if (moveTimer) clearTimeout(moveTimer);
-      catchBtn.classList.add('caught');
-      catchBtn.textContent = 'Yakaladın!';
-      resultEl.textContent = "Ahmet'in amınakoyayım";
-      resultEl.style.display = 'block';
+      if (won) return;
+      won = true;
+      const score = computeScore();
+      lastScore = score;
+      gameScreen.classList.add('hidden');
+      bounceLayer.classList.remove('hidden');
+      startBouncingTexts();
+      setTimeout(() => {
+        scoreOverlayValue.textContent = 'Skorun: ' + score + ' puan';
+        scoreOverlay.classList.add('show');
+      }, 2500);
     });
 
-    moveButton();
+    playAgainBtn.addEventListener('click', () => {
+      scoreOverlay.classList.remove('show');
+      bounceLayer.classList.add('hidden');
+      bounceLayer.innerHTML = '';
+      nameOverlay.classList.remove('hidden');
+      gameScreen.classList.add('hidden');
+      gameStarted = false;
+      won = false;
+      showLastScore();
+      buildLeaderboard();
+    });
+
+    window.addEventListener('resize', () => {
+      if (!gameStarted || won) return;
+      const vp = getViewport();
+      headX = Math.max(0, Math.min(headX, vp.w - HEAD_R * 2));
+      headY = Math.max(0, Math.min(headY, vp.h - HEAD_R * 2));
+    });
+
+    const TEXT_COUNT = 85;
+    const BOUNCE_SPEED = 2.8;
+
+    function startBouncingTexts() {
+      const text = playerName + ' Amınakoyayım';
+      for (let i = 0; i < TEXT_COUNT; i++) {
+        const el = document.createElement('div');
+        el.className = 'bounce-text';
+        el.textContent = text;
+        const x = Math.random() * (window.innerWidth - 220);
+        const y = Math.random() * (window.innerHeight - 30);
+        const vx = (Math.random() - 0.5) * BOUNCE_SPEED * 2;
+        const vy = (Math.random() - 0.5) * BOUNCE_SPEED * 2;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.dataset.vx = vx;
+        el.dataset.vy = vy;
+        bounceLayer.appendChild(el);
+      }
+      function animate() {
+        bounceLayer.querySelectorAll('.bounce-text').forEach(el => {
+          let x = parseFloat(el.style.left) || 0;
+          let y = parseFloat(el.style.top) || 0;
+          let vx = parseFloat(el.dataset.vx);
+          let vy = parseFloat(el.dataset.vy);
+          x += vx;
+          y += vy;
+          const rect = el.getBoundingClientRect();
+          const W = window.innerWidth;
+          const H = window.innerHeight;
+          if (x <= 0) { x = 0; vx = -vx; }
+          if (y <= 0) { y = 0; vy = -vy; }
+          if (x + rect.width >= W) { x = W - rect.width; vx = -vx; }
+          if (y + rect.height >= H) { y = H - rect.height; vy = -vy; }
+          el.style.left = x + 'px';
+          el.style.top = y + 'px';
+          el.dataset.vx = vx;
+          el.dataset.vy = vy;
+        });
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
   </script>
 </body>
 </html>
